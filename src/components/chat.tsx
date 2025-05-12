@@ -1,13 +1,9 @@
-import OpenAI from "openai";
 import { useState } from "react";
 import type { Message } from "../types/types";
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [openAI] = useState(new OpenAI({ apiKey: import.meta.env.VITE_OPENAI_KEY,
-    dangerouslyAllowBrowser: true,
-   }));
   const [isLoading, setIsLoading] = useState(false);
 
 const handleSubmit = async (e: React.FormEvent) => {
@@ -25,28 +21,51 @@ const handleSubmit = async (e: React.FormEvent) => {
   setIsLoading(true);
 
 
-    const response = await openAI.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "user", content: input },
-      ]});
+     try {
+      // Call Groq API directly
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: input }],
+          model: "llama3-70b-8192",
+          temperature: 0.7,
+        }),
+      });
 
-    const aiText = response.choices[0]?.message?.content || "Sorry, I didn't get that.";
+      if (!response.ok) throw new Error("API request failed");
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString() + "-ai",
-        text: aiText,
-        sender: "ai",
-      },
-    ]);
-  
-  setIsLoading(false);
+      const data = await response.json();
+      const aiText = data.choices[0]?.message?.content || "Sorry, I didn’t get that.";
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString() + "-ai",
+          text: aiText,
+          sender: "ai",
+        },
+      ]);
+    } catch (error) {
+      console.error("Groq API error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString() + "-error",
+          text: "Failed to fetch AI response. Please try again.",
+          sender: "ai",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
 };
 
   return (
-    <section className="max-w-2xl mx-auto p-4">
+    <section className="max-w-2xl mx-auto my-22 p-4">
       <div className="bg-gray-100 rounded-lg p-4 h-[400px] overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id}  className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}>
