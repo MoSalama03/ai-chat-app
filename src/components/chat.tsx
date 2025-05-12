@@ -31,11 +31,8 @@ const handleSubmit = async (e: React.FormEvent) => {
         Authorization: `Bearer ${import.meta.env.VITE_OPENAI_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo", // or "gpt-4"
-        messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: input },
-        ],
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: input }],
       }),
     });
 
