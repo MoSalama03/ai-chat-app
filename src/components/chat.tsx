@@ -1,13 +1,15 @@
+import OpenAI from "openai";
 import { useState } from "react";
 import type { Message } from "../types/types";
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [openAI] = useState(new OpenAI({ apiKey: import.meta.env.VITE_OPENAI_KEY,
+    dangerouslyAllowBrowser: true,
+   }));
   const [isLoading, setIsLoading] = useState(false);
 
-   // Using React 19's Action for async AI response
-  // src/components/Chat.tsx
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!input.trim() || isLoading) return; // Prevent spamming
@@ -20,28 +22,16 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
   setMessages((prev) => [...prev, userMessage]);
   setInput("");
-
   setIsLoading(true);
 
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: input }],
-      }),
-    });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
+    const response = await openAI.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "user", content: input },
+      ]});
 
-    const data = await response.json();
-    const aiText = data.choices[0]?.message?.content || "Sorry, I didn't get that.";
+    const aiText = response.choices[0]?.message?.content || "Sorry, I didn't get that.";
 
     setMessages((prev) => [
       ...prev,
@@ -51,18 +41,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         sender: "ai",
       },
     ]);
-  } catch (error) {
-    console.error("API call failed:", error);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString() + "-ai",
-        text: "Failed to fetch response. Check your API key and network.",
-        sender: "ai",
-      },
-    ]);
-  }
-
+  
   setIsLoading(false);
 };
 

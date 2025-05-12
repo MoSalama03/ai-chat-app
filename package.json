@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.3.22",
     "@tailwindcss/vite": "^4.1.6",
+    "openai": "^4.98.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.6"
