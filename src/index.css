@@ -1,11 +1,29 @@
 @import "tailwindcss";
 
-@layer base {
-  html {
-    @apply transition-colors duration-200;
-  }
+/* Dark mode styles */
+:root {
+  --color-transition: 200ms;
+}
 
-  body {
-    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
-  }
+.dark {
+  --tw-bg-opacity: 1;
+  --tw-text-opacity: 1;
+  background-color: rgb(17 24 39 / var(--tw-bg-opacity));
+  color: rgb(243 244 246 / var(--tw-text-opacity));
+}
+
+/* Smooth transitions */
+body {
+  transition:
+    background-color var(--color-transition),
+    color var(--color-transition);
+}
+
+/* Force dark mode class to work without config */
+.dark .dark\:bg-gray-900 {
+  background-color: rgb(17 24 39);
+}
+
+.dark .dark\:text-white {
+  color: rgb(255 255 255);
 }

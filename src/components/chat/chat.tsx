@@ -82,22 +82,24 @@ const handleSubmit = async (e: React.FormEvent) => {
   return (
     <section className="max-w-2xl mx-auto my-16 p-4">
       <div className="max-w-2xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <FaRobot className="text-blue-500 dark:text-blue-400 text-2xl" />
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-            AI Chat
-          </h1>
-        </div>
-        <ThemeToggle />
-      </div>
+  <div className="flex justify-between items-center mb-4">
+    <div className="flex items-center gap-2">
+      <FaRobot className="text-blue-500 dark:text-blue-400 text-2xl" />
+      <h1 className="text-xl font-bold">AI Chat</h1>
     </div>
+    <div className="flex items-center gap-2">
+      <ThemeToggle />
+    </div>
+    </div>
+  </div>
+
+  {/* Messages container */}
       <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-[400px] overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id}  className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}>
             <span className={`inline-block px-4 py-2 rounded-lg ${message.sender === "user"
               ? "bg-blue-500 text-white"
-              : "bg-gray-300 text-black"
+              : "bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100"
             }`}>{message.text}</span>
           </div>
         ))}
@@ -107,8 +109,8 @@ const handleSubmit = async (e: React.FormEvent) => {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 p-2 border rounded-lg bg-white dark:bg-gray-700 
-                    text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+          className="flex-1 p-2 border rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900
+           dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
           placeholder="Type a message..."
         />
         <button 
@@ -117,7 +119,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         className={`bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 
                     dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg ${
           isLoading ? "opacity-50" : "hover:bg-blue-600"
-        }`}>{isLoading ? "Sending..." : "Send"}</button>
+        }`}>
+          {isLoading ? "Sending..." : "Send"}
+          </button>
       </form>
     </section>
   );
