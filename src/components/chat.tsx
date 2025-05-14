@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Message } from "../types/types";
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Add initial AI message when component mounts
+  useEffect(() => {
+    setMessages([{
+      id: "initial-ai-message",
+      text: "How can I Help you today?",
+      sender: "ai",
+    }]);
+  }, []);
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -30,7 +39,10 @@ const handleSubmit = async (e: React.FormEvent) => {
           "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: input }],
+          messages: [
+            { role: "system", content: "You are a helpful assistant." },
+            { role: "user", content: input }
+          ],
           model: "llama3-70b-8192",
           temperature: 0.7,
         }),
@@ -65,7 +77,26 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
   return (
-    <section className="max-w-2xl mx-auto my-22 p-4">
+    <section className="max-w-2xl mx-auto my-16 p-4">
+      <div className="max-w-2xl mx-auto p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-blue-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+        <h1 className="text-xl font-bold">AI Chat</h1>
+      </div>
+    </div>
       <div className="bg-gray-100 rounded-lg p-4 h-[400px] overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id}  className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}>
