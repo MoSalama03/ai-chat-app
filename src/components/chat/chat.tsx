@@ -8,7 +8,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [editText, setEditText] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Add initial AI message when component mounts
@@ -90,7 +90,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     // Save edited message
-  const saveEdit = (id: string) => {
+  const saveEdit = async (id: string) => {
     setMessages(prev => prev.map(msg => 
       msg.id === id ? { ...msg, text: editText, isEditing: false } : msg
     ));
@@ -105,8 +105,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     ));
     setEditingId(null);
   };
-
-
 
   return (
     <section className="max-w-2xl mx-auto my-16 p-4">
