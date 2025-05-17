@@ -7,6 +7,8 @@ import { FaRobot } from "react-icons/fa";
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [editText, setEditText] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Add initial AI message when component mounts
@@ -77,7 +79,34 @@ const handleSubmit = async (e: React.FormEvent) => {
     } finally {
       setIsLoading(false);
     }
-};
+  }
+
+    const startEditing = (id: string, currentText: string) => {
+      setEditingId(id);
+      setEditText(currentText);
+      setMessages((prev) => prev.map(message => message.id === id ? {...message, isEditing : true} : message));
+      setEditingId(null);
+      setEditText('');
+    }
+
+    // Save edited message
+  const saveEdit = (id: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === id ? { ...msg, text: editText, isEditing: false } : msg
+    ));
+    setEditingId(null);
+    setEditText('');
+  };
+
+  // Cancel editing
+  const cancelEdit = (id: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === id ? { ...msg, isEditing: false } : msg
+    ));
+    setEditingId(null);
+  };
+
+
 
   return (
     <section className="max-w-2xl mx-auto my-16 p-4">
@@ -94,16 +123,61 @@ const handleSubmit = async (e: React.FormEvent) => {
   </div>
 
   {/* Messages container */}
-      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-[400px] overflow-y-auto">
-        {messages.map((message) => (
-          <div key={message.id}  className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}>
-            <span className={`inline-block px-4 py-2 rounded-lg ${message.sender === "user"
+      <section className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-[400px] overflow-y-auto">
+  {messages.map((message) => (
+    <div key={message.id} className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}>
+      {message.isEditing ? (
+        // Edit Mode UI
+        <div className="flex flex-col space-y-2">
+          <textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            rows={3}
+          />
+          <div className="flex space-x-2 justify-end">
+            <button
+              onClick={() => saveEdit(message.id)}
+              className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => cancelEdit(message.id)}
+              className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Normal Message UI
+        <div className="relative group">
+          <span className={`inline-block px-4 py-2 rounded-lg ${
+            message.sender === "user"
               ? "bg-blue-500 text-white"
               : "bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100"
-            }`}>{message.text}</span>
-          </div>
-        ))}
-      </div>
+          }`}>
+            {message.text}
+          </span>
+          {message.sender === "user" && (
+            <button
+              onClick={() => startEditing(message.id, message.text)}
+              className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 
+                        bg-gray-200 dark:bg-gray-700 rounded-full p-1 transition-opacity"
+              aria-label="Edit message"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  ))}
+</section>
       <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
         <input
           type="text"
