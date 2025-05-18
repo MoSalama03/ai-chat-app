@@ -1,33 +1,28 @@
-import { useTheme } from "../../context/themeContext"
-import {FiSun, FiMoon } from "react-icons/fi";
+import { useState, useEffect } from "react";
 
-export default function ThemeToggle() {
-  const { theme, toggleTheme, isMounted } = useTheme();
+export default function DarkModeToggle() {
+  const [isDark, setIsDark] = useState(false);
 
-  if (!isMounted) return (
-    <div className="w-10 h-6 bg-gray-200 rounded-full"></div>
-  )
+  // Initialize dark mode from localStorage or system preference
+  useEffect(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDark(savedMode ? savedMode === "true" : systemPrefersDark);
+  }, []);
+
+  // Apply dark mode class and save preference
+  useEffect(() => {
+      document.documentElement.classList.toggle("dark");
+    localStorage.setItem("darkMode", String(isDark));
+  }, [isDark]);
 
   return (
-    <label className="flex items-center cursor-pointer gap-2">
-      <FiSun className={`w-4 h-4 ${theme === 'light' ? 'text-yellow-500' : 'text-gray-400'}`} />
-      
-      <div className="relative">
-        <input 
-          type="checkbox" 
-          className="sr-only" 
-          checked={theme === 'dark'}
-          onChange={toggleTheme}
-        />
-        <div className={`block w-10 h-6 rounded-full transition-colors ${
-          theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
-        }`}></div>
-        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
-          theme === 'dark' ? 'translate-x-4' : ''
-        }`}></div>
-      </div>
-      
-      <FiMoon className={`w-4 h-4 ${theme === 'dark' ? 'text-blue-400' : 'text-gray-400'}`} />
-    </label>
-  )
+    <button
+      onClick={() => setIsDark(!isDark)}
+      className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+      aria-label="Toggle dark mode"
+    >
+      {isDark ? "☀️" : "🌙"}
+    </button>
+  );
 }

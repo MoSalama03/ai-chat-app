@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-/* Dark mode styles */
-:root {
-  --color-transition: 200ms;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 .dark {
   --tw-bg-opacity: 1;
@@ -17,13 +14,4 @@ body {
   transition:
     background-color var(--color-transition),
     color var(--color-transition);
-}
-
-/* Force dark mode class to work without config */
-.dark .dark\:bg-gray-900 {
-  background-color: rgb(17 24 39);
-}
-
-.dark .dark\:text-white {
-  color: rgb(255 255 255);
 }
