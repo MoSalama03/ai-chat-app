@@ -5,11 +5,15 @@ export default function DarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Initialize dark mode from localStorage or system preference
+  // 1. Set light mode as default, then check for overrides
   useEffect(() => {
     setIsMounted(true);
-    // Check localStorage for saved theme preference
-    const savedTheme = localStorage.getItem("darkMode");
+
+    // Always remove dark class first (light mode default)
+    document.documentElement.classList.remove("dark");
+
+    // Then check for overrides
+    const savedTheme = localStorage.getItem("theme");
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     
     // Default to light mode unless explicitly saved as dark or system prefers dark
@@ -19,8 +23,9 @@ export default function DarkModeToggle() {
   // Apply dark mode class and save preference
   useEffect(() => {
     if (!isMounted) return;
-      document.documentElement.classList.toggle("dark");
+      document.documentElement.classList.toggle("dark", darkMode);
       localStorage.setItem("theme", darkMode ? "dark" : "light");
+ 
   }, [darkMode, isMounted]);
 
    // Prevent rendering until mounted to avoid hydration mismatch
